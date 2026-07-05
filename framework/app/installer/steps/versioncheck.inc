@@ -737,7 +737,8 @@ class PEARCheckAction extends StepAction
           
             if($allowed_db['MDB2_Driver_mysql']==TRUE) {
 
-            	@include('MDB2_Driver_mysql');
+            	@include_once('MDB2.php');
+                @include_once('MDB2/Driver/mysql.php');
             	if (!class_exists('MDB2_Driver_mysql')) {
             		$this->errors[] = '<span class="errors">Could not find PEAR::MDB2_Driver_mysql </span>';
 
@@ -749,7 +750,8 @@ class PEARCheckAction extends StepAction
             	
             }
             if ($allowed_db['MDB2_Driver_mysqli']==TRUE) {
-               @include('MDB2_Driver_mysqli');
+               @include_once('MDB2.php');
+               @include_once('MDB2/Driver/mysqli.php');
             	if (!class_exists('MDB2_Driver_mysqli')) {
             		$this->errors[] = '<span class="errors">Could not find PEAR::MDB2_Driver_mysqli </span>';
 
