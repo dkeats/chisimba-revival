@@ -3,22 +3,25 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: chisimba-web
     ports:
       - "8080:80"
-    volumes:
-      - ../framework:/workspace/framework
-      - chisimba_usrfiles:/var/www/html/ch/usrfiles
-      - chisimba_error_logs:/var/www/html/ch/error_logs
     depends_on:
       - db
+    volumes:
+      - ../framework:/opt/chisimba-source:ro
+      - ../runtime/webroot:/var/www/html/ch
+      - ../runtime/packages:/var/www/html/ch/packages
+      - ../runtime/usrfiles:/var/www/html/ch/usrfiles
+      - ../runtime/error_logs:/var/www/html/ch/error_logs
+      - ../runtime/config:/var/www/html/ch/config
     environment:
-      CHISIMBA_DB_HOST: db
-      CHISIMBA_DB_NAME: chisimba
-      CHISIMBA_DB_USER: chisimba
-      CHISIMBA_DB_PASSWORD: chisimba
+      CHISIMBA_WEBROOT: /var/www/html/ch
+      CHISIMBA_SOURCE: /opt/chisimba-source
 
   db:
-    image: mariadb:10.6
+    image: mariadb:10.5
+    container_name: chisimba-db
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: chisimba
@@ -27,18 +30,5 @@ services:
     volumes:
       - chisimba_db_data:/var/lib/mysql
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:5
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: db
-      PMA_USER: chisimba
-      PMA_PASSWORD: chisimba
-    depends_on:
-      - db
-
 volumes:
   chisimba_db_data:
-  chisimba_usrfiles:
-  chisimba_error_logs:
