@@ -122,7 +122,7 @@ class LiveUser_Auth_MDB2 extends LiveUser_Auth_Common
      * @var bool
      * @access private
      */
-    var $force_seq = true;
+    var $force_seq = false;
 
     /**
      * Load the storage container

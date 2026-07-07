@@ -1,26 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SOURCE="${CHISIMBA_SOURCE:-/opt/chisimba-source}"
 WEBROOT="${CHISIMBA_WEBROOT:-/var/www/html/ch}"
+SOURCE="/opt/chisimba-app"
 
 mkdir -p "$WEBROOT"
 
-# Build a writable runtime webroot from the Git-managed source.
-# The installer can write into WEBROOT without modifying framework/.
-rsync -a --delete \
-  --exclude='.git' \
-  "$SOURCE/app/" "$WEBROOT/"
+# First-run bootstrap only. Do not delete or overwrite an installed runtime.
+if [ ! -f "$WEBROOT/index.php" ]; then
+  echo "Bootstrapping Chisimba runtime webroot at $WEBROOT"
+  cp -a "$SOURCE/." "$WEBROOT/"
+fi
 
 mkdir -p \
-  "$WEBROOT/packages" \
   "$WEBROOT/usrfiles" \
   "$WEBROOT/usrfiles/users" \
+  "$WEBROOT/packages" \
   "$WEBROOT/error_logs" \
   "$WEBROOT/config"
 
-# Make the Chisimba runtime writable for the installer.
 chown -R www-data:www-data "$WEBROOT"
 chmod -R u+rwX,g+rwX "$WEBROOT"
 
-exec apache2-foreground
+exec "$@"

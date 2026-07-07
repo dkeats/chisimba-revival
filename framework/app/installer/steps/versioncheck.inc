@@ -733,13 +733,30 @@ class PEARCheckAction extends StepAction
             }
             
             $allowed_db = isset($_SESSION['allowed_db'])? $_SESSION['allowed_db']:NULL;
+
+            // Chisimba Revival: ensure bundled PEAR path is available during installer driver checks.
+            $chisimbaPearPath = realpath(dirname(__FILE__) . '/../../lib/pear');
+            if ($chisimbaPearPath !== false && strpos(get_include_path(), $chisimbaPearPath) === false) {
+                set_include_path($chisimbaPearPath . PATH_SEPARATOR . get_include_path());
+            }
 			
           
             if($allowed_db['MDB2_Driver_mysql']==TRUE) {
 
             	@include_once('MDB2.php');
                 @include_once('MDB2/Driver/mysql.php');
-            	if (!class_exists('MDB2_Driver_mysql')) {
+            	echo '<pre style="background:#111;color:#0f0;padding:10px">';
+echo "CHISIMBA DEBUG MDB2 MYSQL\n";
+echo "File: " . __FILE__ . "\n";
+echo "Include path: " . get_include_path() . "\n";
+echo "PEAR driver file exists: ";
+var_dump(file_exists(dirname(__FILE__) . '/../../lib/pear/MDB2/Driver/mysql.php'));
+echo "Class before include check: ";
+var_dump(class_exists('MDB2_Driver_mysql', false));
+echo "Class after include check: ";
+var_dump(class_exists('MDB2_Driver_mysql', false));
+echo '</pre>';
+                if (!class_exists('MDB2_Driver_mysql')) {
             		$this->errors[] = '<span class="errors">Could not find PEAR::MDB2_Driver_mysql </span>';
 
                 	$this->required_packages['MDB2_Driver_mysql']['message'] =  '<img src="./extra/failed.png" border="0" alt="Failed" title="Failed"  />';
@@ -795,6 +812,27 @@ class PEARCheckAction extends StepAction
                 $package_info = $pear_registry->packageInfo($package_name);
 
                 if (empty($package_info)) {
+
+                    // Chisimba Revival compatibility:
+                    // Some bundled PEAR libraries are available as loadable files/classes
+                    // but are not registered in the PEAR registry.
+                    if ($package_name == 'MDB2_Driver_mysql') {
+                        @include_once('MDB2.php');
+                        @include_once('MDB2/Driver/mysql.php');
+                        if (class_exists('MDB2_Driver_mysql')) {
+                            $this->required_packages[$package_name]['message'] = '<img src="./extra/ok.png" border="0" alt="OK" title="OK"  />';
+                            continue;
+                        }
+                    }
+
+                    if ($package_name == 'MDB2_Driver_mysqli') {
+                        @include_once('MDB2.php');
+                        @include_once('MDB2/Driver/mysqli.php');
+                        if (class_exists('MDB2_Driver_mysqli')) {
+                            $this->required_packages[$package_name]['message'] = '<img src="./extra/ok.png" border="0" alt="OK" title="OK"  />';
+                            continue;
+                        }
+                    }
 
                     $this->errors[] = '<br> Required PEAR module "'.$package_name.'" is not installed. Please run';
                     if ($package_name == 'MDB2') {

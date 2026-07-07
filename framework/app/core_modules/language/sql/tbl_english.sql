@@ -9,7 +9,8 @@ $options = array('comment' => 'English language table','collate' => 'utf8_genera
 // Fields
 $fields = array(
     'id' => array(
-        'type' => 'clob',
+        'type' => 'text',
+        'length' => 255,
         ),
     'en' => array(
         'type' => 'clob',

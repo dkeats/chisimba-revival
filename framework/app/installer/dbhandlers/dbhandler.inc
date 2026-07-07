@@ -112,9 +112,13 @@ class DbHandler extends dbHandlermanager
             //var_dump($this->_globalObjDb);
 
             if (PEAR::isError($this->_globalObjDb)) {
-                echo $this->_pearErrorCallback($this->_globalObjDb);
+                echo '<pre style="background:#111;color:#0f0;padding:10px">';
+                echo "CHISIMBA DB CONNECT ERROR\n";
+                echo "DSN: " . $_SESSION['dsn'] . "\n";
+                echo "Message: " . $this->_globalObjDb->getMessage() . "\n";
+                echo "User info: " . $this->_globalObjDb->getUserInfo() . "\n";
+                echo '</pre>';
                 die();
-               
             }
             $this->_globalObjDb->setCharset('utf8');
             $this->_globalObjDb->setOption('portability', MDB2_PORTABILITY_FIX_CASE); // ^ MDB2_PORTABILITY_EMPTY_TO_NULL);

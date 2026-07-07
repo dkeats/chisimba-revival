@@ -17,21 +17,27 @@ RUN set -eux; \
       libfreetype6-dev \
       zlib1g-dev \
       unzip \
-      git \
+      rsync \
       mariadb-client \
-      rsync; \
+    ; \
     rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install gd zip calendar mysql mysqli
+RUN set -eux; \
+    docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/; \
+    docker-php-ext-install gd zip calendar mysql mysqli
 
-RUN pear channel-update pear.php.net || true \
-    && pear install -a -f Config Log XML_Util XML_Parser XML_DTD XML_Serializer Structures_Graph \
-    && pear install -a -f MDB2-2.5.0b2 MDB2_Driver_mysql MDB2_Driver_mysqli MDB2_Schema || true
+RUN a2enmod rewrite
 
-COPY php/chisimba.ini /usr/local/etc/php/conf.d/chisimba.ini
-COPY apache/chisimba.conf /etc/apache2/sites-available/000-default.conf
-COPY scripts/bootstrap-webroot.sh /usr/local/bin/bootstrap-webroot.sh
-RUN chmod +x /usr/local/bin/bootstrap-webroot.sh && a2enmod rewrite
+COPY docker/php/chisimba.ini /usr/local/etc/php/conf.d/chisimba.ini
+COPY docker/apache/chisimba.conf /etc/apache2/sites-available/000-default.conf
+COPY docker/scripts/bootstrap-webroot.sh /usr/local/bin/bootstrap-webroot
+RUN chmod +x /usr/local/bin/bootstrap-webroot
 
-CMD ["bootstrap-webroot.sh"]
+COPY framework/app /opt/chisimba-app
+
+RUN set -eux; \
+    mkdir -p /var/www/html/ch; \
+    chown -R www-data:www-data /var/www/html/ch /opt/chisimba-app
+
+ENTRYPOINT ["/usr/local/bin/bootstrap-webroot"]
+CMD ["apache2-foreground"]

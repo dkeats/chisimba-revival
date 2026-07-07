@@ -1,34 +1,36 @@
 services:
   web:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: chisimba-web
     ports:
       - "8080:80"
     depends_on:
       - db
     volumes:
-      - ../framework:/opt/chisimba-source:ro
-      - ../runtime/webroot:/var/www/html/ch
-      - ../runtime/packages:/var/www/html/ch/packages
-      - ../runtime/usrfiles:/var/www/html/ch/usrfiles
-      - ../runtime/error_logs:/var/www/html/ch/error_logs
-      - ../runtime/config:/var/www/html/ch/config
+      - chisimba_webroot:/var/www/html/ch
     environment:
       CHISIMBA_WEBROOT: /var/www/html/ch
-      CHISIMBA_SOURCE: /opt/chisimba-source
+    networks:
+      - chisimba
 
   db:
-    image: mariadb:10.5
+    image: mariadb:10.3
     container_name: chisimba-db
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: chisimba
+#      MYSQL_DATABASE: chisimba
       MYSQL_USER: chisimba
       MYSQL_PASSWORD: chisimba
     volumes:
-      - chisimba_db_data:/var/lib/mysql
+      - chisimba_db:/var/lib/mysql
+    networks:
+      - chisimba
 
 volumes:
-  chisimba_db_data:
+  chisimba_webroot:
+  chisimba_db:
+
+networks:
+  chisimba:

@@ -1,14 +1,17 @@
-# Runtime/generated Chisimba installation
+# Runtime/generated data
 runtime/
-
-# Logs and temporary files
 *.log
 *.bak
-*.tmp
-*.swp
 
-# OS/editor files
-.DS_Store
-Thumbs.db
+# Docker/local state
+.docker/
+
+# Editors
 .vscode/
 .idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db

@@ -988,6 +988,14 @@ class MDB2_Error extends PEAR_Error
  */
 class MDB2_Driver_Common extends PEAR
 {
+    // Chisimba Revival compatibility for PHP 5.6 / bundled PEAR.
+    function setErrorHandling($mode = null, $options = null)
+    {
+        $this->_default_error_mode = $mode;
+        $this->_default_error_options = $options;
+        return true;
+    }
+
     // {{{ Variables (Properties)
 
     /**
@@ -1933,6 +1941,19 @@ class MDB2_Driver_Common extends PEAR
         if (!is_null($module)) {
             return call_user_func_array(array(&$this->modules[$module], $method), $params);
         }
+        if ($method == 'raiseError') {
+            echo '<pre style="background:#111;color:#0f0;padding:10px">';
+            echo "CHISIMBA DEBUG: MDB2 __call reached raiseError\\n";
+            echo "Class: " . get_class($this) . "\\n";
+            echo "Method: " . $method . "\\n";
+            echo "Params:\\n";
+            print_r($params);
+            echo "Backtrace:\\n";
+            debug_print_backtrace();
+            echo '</pre>';
+            die();
+        }
+
         trigger_error(sprintf('Call to undefined function: %s::%s().', get_class($this), $method), E_USER_ERROR);
     }
 

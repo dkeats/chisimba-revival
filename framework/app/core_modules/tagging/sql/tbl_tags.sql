@@ -21,14 +21,15 @@ $fields = array(
         ),
     'meta_key' => array(
         'type' => 'text',
-        'length' => 255,
+        'length' => 100,
         ),
     'meta_value' => array(
-        'type' => 'clob',
+        'type' => 'text',
+        'length' => 100,
         ),
     'module' => array(
         'type' => 'text',
-        'length' => 255,
+        'length' => 100,
         ),
     'uri' => array(
         'type' => 'text',
@@ -36,11 +37,11 @@ $fields = array(
         ),
     'context' => array(
         'type' => 'text',
-        'length' => 255,
+        'length' => 100,
         ),
     'searchkey' => array(
         'type' => 'text',
-        'length' => 255,
+        'length' => 100,
         ),
     );
 

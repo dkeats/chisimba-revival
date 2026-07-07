@@ -1,22 +1,38 @@
-# Chisimba Revival Development Environment
+# Chisimba Revival Development Environment v4.0
 
-## Design
+## Purpose
 
-The Git repository is the source of truth. The Chisimba installer runs against a writable runtime copy.
+This environment is the reset point after the earlier experimental Docker containers.
+
+It is designed around one clear rule:
+
+- `framework/` is source code in Git.
+- `/var/www/html/ch` is a writable Chisimba runtime installation inside Docker.
+
+The installer may write files, create directories, and generate configuration inside the runtime without modifying the Git source tree.
+
+## Repository layout
 
 ```text
-framework/                 Git-managed source
-runtime/webroot/            generated writable installation, ignored by Git
-runtime/packages/           writable packages directory
-runtime/usrfiles/           writable user files directory
-runtime/error_logs/         writable logs directory
-runtime/config/             writable generated config directory
-docker/                     Docker development environment
+chisimba-revival-repo/
+├── framework/          # Chisimba core source
+├── docker/             # Docker development environment
+├── docs/               # Project documentation
+└── runtime/            # Optional host runtime data, ignored by Git if used later
 ```
 
-At container startup, `framework/app/` is copied into `runtime/webroot/`, then Apache serves `/var/www/html/ch` from that writable runtime directory.
+## Container layout
 
-## Run
+```text
+/opt/chisimba-app       # copy of framework/app baked into the image
+/var/www/html/ch        # writable runtime webroot, Docker named volume
+```
+
+On first start, the bootstrap script copies `/opt/chisimba-app` into `/var/www/html/ch` only if the runtime webroot is empty.
+
+## Running
+
+From the repository root:
 
 ```bash
 cd docker
@@ -29,31 +45,31 @@ Open:
 http://localhost:8080/ch/
 ```
 
-Installer values:
+## Resetting the runtime installation
 
-```text
-PEAR path: /var/www/html/ch/lib/pear
-Database host: db
-Database: chisimba
-Username: chisimba
-Password: chisimba
-```
-
-## Stop
+If the installer leaves the runtime in a bad state:
 
 ```bash
 cd docker
-docker compose down
-```
-
-## Reset runtime installation
-
-```bash
-rm -rf runtime
-cd docker
+docker compose down -v
 docker compose up --build
 ```
 
-## Notes
+This removes the Docker named volumes, including the generated Chisimba webroot and database data.
 
-Do not commit `runtime/`. It is generated and writable by design.
+## Installer values
+
+Use:
+
+```text
+Chisimba home directory: /var/www/html/ch/
+PEAR path: /var/www/html/ch/lib/pear
+Database host: db
+Database name: chisimba
+Database user: chisimba
+Database password: chisimba
+```
+
+## Design notes
+
+This setup deliberately does not patch Chisimba source during Docker build. Any Chisimba code change should be made in `framework/`, reviewed with `git diff`, committed, and then tested by rebuilding the Docker image.

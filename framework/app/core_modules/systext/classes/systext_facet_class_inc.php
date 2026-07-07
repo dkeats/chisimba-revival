@@ -309,6 +309,10 @@ class systext_facet extends dbTable
         $textItemList = $this -> listTextItems();
         $abstractList = array();
 
+        if (!is_array($systemTypeList)) {
+            $systemTypeList = array();
+        }
+
         foreach($systemTypeList as $arrSystemType){
             if($arrSystemType['systemtype'] == $system_type){
                 $systemTypeId = $arrSystemType['id'];

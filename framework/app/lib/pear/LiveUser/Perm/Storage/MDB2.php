@@ -90,7 +90,7 @@ class LiveUser_Perm_Storage_MDB2 extends LiveUser_Perm_Storage_SQL
      * @var bool
      * @access private
      */
-    var $force_seq = true;
+    var $force_seq = false;
 
     /**
      * Initialize the storage container

@@ -42,20 +42,79 @@
 // | Author: Lukas Smith <smith@pooteeweet.org>                           |
 // +----------------------------------------------------------------------+
 //
-// $Id: Common.php 242348 2007-09-09 13:47:36Z quipo $
+// $Id: mysql.php,v 1.11 2007/01/12 11:29:12 quipo Exp $
 //
 
+require_once 'MDB2/Driver/Function/Common.php';
+
 /**
- * Base class for the natuve modules that is extended by each MDB2 driver
- *
- * To load this module in the MDB2 object:
- * $mdb->loadModule('Native');
+ * MDB2 MySQL driver for the function modules
  *
  * @package MDB2
  * @category Database
  * @author  Lukas Smith <smith@pooteeweet.org>
  */
-class MDB2_Driver_Native_Common extends MDB2_Module_Common
+class MDB2_Driver_Function_mysql extends MDB2_Driver_Function_Common
 {
+     // }}}
+    // {{{ executeStoredProc()
+
+    /**
+     * Execute a stored procedure and return any results
+     *
+     * @param string $name string that identifies the function to execute
+     * @param mixed  $params  array that contains the paramaters to pass the stored proc
+     * @param mixed   $types  array that contains the types of the columns in
+     *                        the result set
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function &executeStoredProc($name, $params = null, $types = null, $result_class = true, $result_wrap_class = false)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = 'CALL '.$name;
+        $query .= $params ? '('.implode(', ', $params).')' : '()';
+        return $db->query($query, $types, $result_class, $result_wrap_class);
+    }
+
+    // }}}
+    // {{{ concat()
+
+    /**
+     * Returns string to concatenate two or more string parameters
+     *
+     * @param string $value1
+     * @param string $value2
+     * @param string $values...
+     * @return string to concatenate two strings
+     * @access public
+     **/
+    function concat($value1, $value2)
+    {
+        $args = func_get_args();
+        return "CONCAT(".implode(', ', $args).")";
+    }
+
+    // }}}
+    // {{{ guid()
+
+    /**
+     * Returns global unique identifier
+     *
+     * @return string to get global unique identifier
+     * @access public
+     */
+    function guid()
+    {
+        return 'UUID()';
+    }
+
+    // }}}
 }
 ?>
